@@ -12,10 +12,15 @@ const initTwilio = () => {
     }
 };
 
-const formatNumber = (mobile: string) => {
+const formatNumber = (mobile: any) => {
+    // Ensure it's a string
+    const mobileStr = (mobile || '').toString();
+
     // Strip all non-numeric characters first
-    let cleanNumber = mobile.replace(/\D/g, '');
-    
+    let cleanNumber = mobileStr.replace(/\D/g, '');
+
+    console.log(`[WhatsApp] Formatting number: ${mobileStr} -> Clean: ${cleanNumber}`);
+
     // Remove leading 0 if present
     if (cleanNumber.startsWith('0')) {
         cleanNumber = cleanNumber.substring(1);
@@ -25,7 +30,7 @@ const formatNumber = (mobile: string) => {
     if (cleanNumber.length === 10) {
         return `+91${cleanNumber}`;
     }
-    
+
     // Otherwise, ensure it has a +
     return `+${cleanNumber}`;
 };
@@ -33,6 +38,8 @@ const formatNumber = (mobile: string) => {
 export const sendWhatsAppMessage = async (toMobile: string, messageBody: string) => {
     initTwilio();
     const formattedNumber = formatNumber(toMobile);
+    console.log(`[WhatsApp] Sending to: ${formattedNumber}`);
+
     // WhatsApp Sandbox mandates this exact number unless a Business profile is approved
     const twilioNumber = 'whatsapp:+14155238886';
 
@@ -48,25 +55,22 @@ export const sendWhatsAppMessage = async (toMobile: string, messageBody: string)
             to: `whatsapp:${formattedNumber}`
         });
 
-        console.log(`[WhatsApp] Message sent successfully. SID: ${message.sid}`);
+        console.log(`[WhatsApp] Success! SID: ${message.sid}`);
         return true;
     } catch (error: any) {
-        console.error('--- TWILIO WHATSAPP ERROR START ---');
-        console.error('Code:', error.code);
-        console.error('Message:', error.message);
-        console.error('More Info:', error.moreInfo);
-        console.error('--- TWILIO WHATSAPP ERROR END ---');
-
-        // We log the error but still throw to let the caller know
+        console.error('--- TWILIO ERROR ---', error.message);
         throw new Error(`WhatsApp Failed: ${error.message}`);
     }
 };
 
 export const sendWhatsAppOTP = async (toMobile: string, otp: string) => {
+    // Using the exact Twilio Sandbox template format: "Your {{1}} code is {{2}}"
+    // This is most likely to pass sandbox triggers
+    const message = `Your Retail Shop code is ${otp}`;
+
     console.log(`\n\n---------------------------------`);
     console.log(`[RECOVERY LOG] Registration OTP for ${toMobile}: ${otp}`);
     console.log(`---------------------------------\n\n`);
-    
-    return sendWhatsAppMessage(toMobile, `Your Retail Shop OTP is: ${otp}`);
-};
 
+    return sendWhatsAppMessage(toMobile, message);
+};
