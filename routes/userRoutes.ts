@@ -9,5 +9,6 @@ router.route('/profile')
     .put(protect, userController.updateProfile);
 
 router.put('/fcm-token', protect, userController.updateFCMToken);
+router.post('/test-notifications', protect, userController.sendTestNotification);
 
 export default router;
