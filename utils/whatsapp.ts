@@ -13,18 +13,23 @@ const initTwilio = () => {
 };
 
 const formatNumber = (mobile: string) => {
-    let formattedNumber = mobile;
-    if (!formattedNumber.startsWith('+')) {
-        formattedNumber = `+91${mobile}`;
+    // Strip all non-numeric characters first
+    let cleanNumber = mobile.replace(/\D/g, '');
+
+    // If it starts with a 10 digit number, assume it's Indian (+91)
+    if (cleanNumber.length === 10) {
+        return `+91${cleanNumber}`;
     }
-    return formattedNumber;
+
+    // Otherwise, just ensure it has a +
+    return `+${cleanNumber}`;
 };
 
 export const sendWhatsAppMessage = async (toMobile: string, messageBody: string) => {
     initTwilio();
     const formattedNumber = formatNumber(toMobile);
     // WhatsApp Sandbox mandates this exact number unless a Business profile is approved
-    const twilioNumber = 'whatsapp:+14155238886'; 
+    const twilioNumber = 'whatsapp:+14155238886';
 
     if (!client) {
         console.log(`\n\n[MOCK WhatsApp] -> Sent to ${formattedNumber}: ${messageBody}\n\n`);
@@ -47,6 +52,7 @@ export const sendWhatsAppMessage = async (toMobile: string, messageBody: string)
 };
 
 export const sendWhatsAppOTP = async (toMobile: string, otp: string) => {
-    return sendWhatsAppMessage(toMobile, `Your Retail Shop Expiry Alert verification code is: ${otp}`);
+    console.log(`[WhatsApp] Sending Registration OTP to ${toMobile}`);
+    return sendWhatsAppMessage(toMobile, `Your Retail Shop OTP is: ${otp}`);
 };
 
