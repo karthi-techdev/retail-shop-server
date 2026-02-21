@@ -17,9 +17,8 @@ class AuthService {
 
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
-        // This inherently handles the API call if Twilio keys exist, or falls back to console mocking gracefully
-        await sendWhatsAppOTP(mobile, otp);
-
+        // 1. Create the user record FIRST. 
+        // This ensures the ID exists and we can see the OTP in recovery logs even if Twilio fails.
         const user = await userRepository.createUser({
             name,
             mobile,
@@ -28,8 +27,16 @@ class AuthService {
             isVerified: false
         });
 
+        // 2. Try to send WhatsApp, but don't block registration if it fails.
+        try {
+            await sendWhatsAppOTP(mobile, otp);
+        } catch (error: any) {
+            console.error(`[Critical Notification Error] Register WhatsApp failed: ${error.message}`);
+            // We do NOT throw. The user is created, and developer can see OTP in Render Logs.
+        }
+
         return {
-            message: 'OTP sent successfully',
+            message: 'Registration initiated. Check WhatsApp or Server Logs for OTP.',
             userId: user._id
         };
     }
