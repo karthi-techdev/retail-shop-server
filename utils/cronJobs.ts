@@ -8,19 +8,25 @@ let lastProcessedMinute = '';
 export const startCronJobs = () => {
     // Run every minute to check if any user has a scheduled alert time: * * * * *
     cron.schedule('* * * * *', async () => {
+        // Render servers run in UTC. Calculating IST (UTC+5:30) for the user.
         const now = new Date();
-        const currentTime = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+        const istOffset = 5.5 * 60 * 60 * 1000;
+        const istDate = new Date(now.getTime() + istOffset);
+
+        const currentTime = istDate.getUTCHours().toString().padStart(2, '0') + ':' + istDate.getUTCMinutes().toString().padStart(2, '0');
 
         if (lastProcessedMinute === currentTime) {
             return;
         }
         lastProcessedMinute = currentTime;
 
-        console.log(`Checking alerts for time: ${currentTime}`);
+        console.log(`[Cron] Checking alerts for IST Time: ${currentTime}`);
 
         try {
             const lowStockProducts = await productRepository.getLowStockProducts();
             const nearExpiryProducts = await productRepository.getNearExpiryProducts();
+
+            console.log(`[Cron] Found ${lowStockProducts.length} low stock and ${nearExpiryProducts.length} near expiry items.`);
 
             // Store alerts grouped by userId and Category
             const userAlertsMap: {
