@@ -34,16 +34,28 @@ export const sendPushNotification = async (fcmToken: string, title: string, body
     }
 
     try {
-        const message = {
+        const message: any = {
             notification: {
                 title,
                 body,
             },
+            data: {
+                title,
+                body,
+                click_action: "FLUTTER_NOTIFICATION_CLICK" // Standard practice for various wrappers
+            },
             token: fcmToken,
+            android: {
+                priority: "high",
+                notification: {
+                    sound: "default",
+                    channelId: "default"
+                }
+            }
         };
 
         const response = await admin.messaging().send(message);
-        console.log(`Push notification sent successfully: ${response}`);
+        console.log(`[Firebase] Push notification sent successfully: ${response}`);
         return true;
     } catch (error) {
         console.error('Firebase messaging error:', error);
