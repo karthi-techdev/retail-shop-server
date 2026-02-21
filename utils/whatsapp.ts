@@ -4,8 +4,8 @@ let client: twilio.Twilio | null = null;
 
 const initTwilio = () => {
     if (!client) {
-        const accountSid = process.env.TWILIO_ACCOUNT_SID;
-        const authToken = process.env.TWILIO_AUTH_TOKEN;
+        const accountSid = process.env.TWILIO_ACCOUNT_SID?.trim();
+        const authToken = process.env.TWILIO_AUTH_TOKEN?.trim();
         if (accountSid && authToken && accountSid !== 'AC_PLACEHOLDER') {
             client = twilio(accountSid, authToken);
         }
@@ -15,13 +15,18 @@ const initTwilio = () => {
 const formatNumber = (mobile: string) => {
     // Strip all non-numeric characters first
     let cleanNumber = mobile.replace(/\D/g, '');
+    
+    // Remove leading 0 if present
+    if (cleanNumber.startsWith('0')) {
+        cleanNumber = cleanNumber.substring(1);
+    }
 
-    // If it starts with a 10 digit number, assume it's Indian (+91)
+    // If it's a 10 digit number, assume it's Indian (+91)
     if (cleanNumber.length === 10) {
         return `+91${cleanNumber}`;
     }
-
-    // Otherwise, just ensure it has a +
+    
+    // Otherwise, ensure it has a +
     return `+${cleanNumber}`;
 };
 
