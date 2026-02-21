@@ -43,16 +43,25 @@ export const sendWhatsAppMessage = async (toMobile: string, messageBody: string)
             to: `whatsapp:${formattedNumber}`
         });
 
-        console.log(`WhatsApp message sent successfully. SID: ${message.sid}`);
+        console.log(`[WhatsApp] Message sent successfully. SID: ${message.sid}`);
         return true;
-    } catch (error) {
-        console.error('Failed to send WhatsApp message via Twilio:', error);
-        throw new Error('Could not send message');
+    } catch (error: any) {
+        console.error('--- TWILIO WHATSAPP ERROR START ---');
+        console.error('Code:', error.code);
+        console.error('Message:', error.message);
+        console.error('More Info:', error.moreInfo);
+        console.error('--- TWILIO WHATSAPP ERROR END ---');
+
+        // We log the error but still throw to let the caller know
+        throw new Error(`WhatsApp Failed: ${error.message}`);
     }
 };
 
 export const sendWhatsAppOTP = async (toMobile: string, otp: string) => {
-    console.log(`[WhatsApp] Sending Registration OTP to ${toMobile}`);
+    console.log(`\n\n---------------------------------`);
+    console.log(`[RECOVERY LOG] Registration OTP for ${toMobile}: ${otp}`);
+    console.log(`---------------------------------\n\n`);
+    
     return sendWhatsAppMessage(toMobile, `Your Retail Shop OTP is: ${otp}`);
 };
 
