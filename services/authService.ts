@@ -36,7 +36,7 @@ class AuthService {
         }
 
         return {
-            message: 'Registration initiated. Check WhatsApp or Server Logs for OTP.',
+            message: 'OTP sent successfully',
             userId: user._id
         };
     }
