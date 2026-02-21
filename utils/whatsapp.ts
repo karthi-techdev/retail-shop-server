@@ -64,9 +64,9 @@ export const sendWhatsAppMessage = async (toMobile: string, messageBody: string)
 };
 
 export const sendWhatsAppOTP = async (toMobile: string, otp: string) => {
-    // Using the exact Twilio Sandbox template format: "Your {{1}} code is {{2}}"
-    // This is most likely to pass sandbox triggers
-    const message = `Your Retail Shop code is ${otp}`;
+    // This is the absolute standard Twilio Sandbox Template
+    // Pattern: "Your {{1}} code is {{2}}"
+    const message = `Your Shop code is ${otp}`;
 
     console.log(`\n\n---------------------------------`);
     console.log(`[RECOVERY LOG] Registration OTP for ${toMobile}: ${otp}`);
